@@ -24,33 +24,29 @@ int main()
     while(!WindowShouldClose()) {
         if (IsKeyDown(KEY_S) && (player1_position.y + box_size.y) <= SCREEN_HEIGHT) 
             player1_position.y += 15;
-
         else if (IsKeyDown(KEY_W) && player1_position.y >= 0) 
             player1_position.y -= 15;
-
         if (IsKeyDown(KEY_DOWN) && (player2_position.y + box_size.y) <= SCREEN_HEIGHT)
             player2_position.y += 15;
-        
         else if (IsKeyDown(KEY_UP) && player2_position.y >= 0) 
             player2_position.y -= 15;
         
-        if (ball_position.x + ball_size.x >= SCREEN_WIDTH) {
-            ball_speed.x = - ball_speed.x;
-            ball_position.x = SCREEN_WIDTH - ball_size.x;
-        } else if (ball_position.x <= 0) {
-            ball_speed.x = - ball_speed.x;
-            ball_position.x = 0;
-        }
-        if (ball_position.y + ball_size.y >= SCREEN_HEIGHT) {
-            ball_speed.y = - ball_speed.y;
-            ball_position.y = SCREEN_HEIGHT - ball_size.y;
-        } else if (ball_position.y <= 0) {
-            ball_speed.y = - ball_speed.y;
-            ball_position.y = 0;
-        }
-
-        ball_position.x += ball_speed.x;
-        ball_position.y += ball_speed.y;
+            if (ball_position.x + ball_size.x >= SCREEN_WIDTH) {
+                ball_speed.x = - ball_speed.x;
+                ball_position.x = SCREEN_WIDTH - ball_size.x;
+            } else if (ball_position.x <= 0) {
+                ball_speed.x = - ball_speed.x;
+                ball_position.x = 0;
+            }
+            if (ball_position.y + ball_size.y >= SCREEN_HEIGHT) {
+                ball_speed.y = - ball_speed.y;
+                ball_position.y = SCREEN_HEIGHT - ball_size.y;
+            } else if (ball_position.y <= 0) {
+                ball_speed.y = - ball_speed.y;
+                ball_position.y = 0;
+            }
+            ball_position.x += ball_speed.x;
+            ball_position.y += ball_speed.y;
 
         BeginDrawing();
 			ClearBackground(BLACK);
