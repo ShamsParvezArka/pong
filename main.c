@@ -3,6 +3,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 #define SCREEN_WIDTH 1200
 #define SCREEN_HEIGHT 900
@@ -15,8 +16,12 @@ Vector2 paddle2 = {SCREEN_WIDTH - 30, SCREEN_HEIGHT - 70};
 Vector2 paddle_size  = {20, 80};
 
 Vector2 ball_size = {20, 20};
-Vector2 ball = {SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2};
+Vector2 ball = {(float) SCREEN_WIDTH / 2, (float) SCREEN_HEIGHT / 2};
 Vector2 ball_speed = {10, 10};
+
+int player1_score = 0;
+int player2_score = 0;
+const int font_size = 100;
 
 int main()
 {
@@ -24,6 +29,9 @@ int main()
     SetTargetFPS(60);
     
     while(!WindowShouldClose()) {
+		DrawText(TextFormat("%d", player1_score), SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 100, font_size, WHITE);
+		DrawText(TextFormat("%d", player2_score), SCREEN_WIDTH / 2 +  25, SCREEN_HEIGHT / 2 - 100, font_size, WHITE);
+		
         control_paddle();
         
 		if (collided(paddle1)) {
@@ -36,11 +44,13 @@ int main()
 		}
 		else {
 			if (ball.x + ball_size.x >= SCREEN_WIDTH) {
-				//ball_speed.x = - ball_speed.x;
-				//ball.x = SCREEN_WIDTH - ball_size.x;
+				player1_score += 1;
+				ball.x = (float) SCREEN_WIDTH / 2;
+				ball.y = (float) SCREEN_HEIGHT / 2;
 			} else if (ball.x <= 0) {
-				//ball_speed.x = - ball_speed.x;
-				//ball.x = 0;
+				player2_score += 1;
+				ball.x = (float) SCREEN_WIDTH / 2;
+				ball.y = (float) SCREEN_HEIGHT / 2;
 			}
 			if (ball.y + ball_size.y >= SCREEN_HEIGHT) {
 				ball_speed.y = - ball_speed.y;
