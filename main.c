@@ -36,11 +36,11 @@ int main()
 		}
 		else {
 			if (ball.x + ball_size.x >= SCREEN_WIDTH) {
-				ball_speed.x = - ball_speed.x;
-				ball.x = SCREEN_WIDTH - ball_size.x;
+				//ball_speed.x = - ball_speed.x;
+				//ball.x = SCREEN_WIDTH - ball_size.x;
 			} else if (ball.x <= 0) {
-				ball_speed.x = - ball_speed.x;
-				ball.x = 0;
+				//ball_speed.x = - ball_speed.x;
+				//ball.x = 0;
 			}
 			if (ball.y + ball_size.y >= SCREEN_HEIGHT) {
 				ball_speed.y = - ball_speed.y;
@@ -81,7 +81,8 @@ bool collided(Vector2 paddle) {
 			paddle.x <= (ball.x + ball_size.x)   && 
 			(paddle.x + paddle_size.x) >= ball.x &&
 			paddle.y <= (ball.y + ball_size.y)   &&
-			(paddle.y + paddle_size.y) >= ball.y )
+			(paddle.y + paddle_size.y) >= ball.y 
+	   ) 
 	{
 		return true;
 	}
