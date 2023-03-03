@@ -17,7 +17,7 @@ Rectangle ball = {SCREEN_WIDTH / 2.0, SCREEN_HEIGHT / 2.0, 15.0, 15.0};
 Vector2 ball_speed = {10, 10};
 
 const float paddle_speed = 12;
-const float accelaration_rate = 0.1;
+const float accelaration_rate = 0.2;
 
 int paddle1_score = 0;
 int paddle2_score = 0;
@@ -46,32 +46,32 @@ int main()
 				ball_speed.x = - ball_speed.x;
 				ball.x += ball_speed.x;
 			}
-
-			if (ball.x + ball.width >= SCREEN_WIDTH) {
-				reset_ball_speed();
-				ball.x = SCREEN_WIDTH  / 2;
-				ball.y = SCREEN_HEIGHT / 2;
-				paddle1_score++;
+			if (paddle1_score != 10 && paddle2_score != 10) {
+				if (ball.x + ball.width >= SCREEN_WIDTH) {
+					reset_ball_speed();
+					ball.x = SCREEN_WIDTH  / 2;
+					ball.y = SCREEN_HEIGHT / 2;
+					paddle1_score++;
+				}
+				else if (ball.x <= 0) {
+					reset_ball_speed();
+					ball_speed.y = - ball_speed.y;
+					ball_speed.x = - ball_speed.x;
+					ball.x = SCREEN_WIDTH  / 2;
+					ball.y = SCREEN_HEIGHT / 2;
+					paddle2_score++;
+				}
+				if (ball.y + ball.height >= SCREEN_HEIGHT) {
+					ball_speed.y = - ball_speed.y;
+					ball.y = SCREEN_HEIGHT - ball.height;
+				}
+				else if (ball.y <= 0) {
+					ball_speed.y = - ball_speed.y;
+					ball.y = 0;
+				}
+				ball.x += ball_speed.x;
+				ball.y += ball_speed.y;
 			}
-			else if (ball.x <= 0) {
-				reset_ball_speed();
-				ball_speed.y = - ball_speed.y;
-				ball_speed.x = - ball_speed.x;
-				ball.x = SCREEN_WIDTH  / 2;
-				ball.y = SCREEN_HEIGHT / 2;
-				paddle2_score++;
-			}
-
-			if (ball.y + ball.height >= SCREEN_HEIGHT) {
-				ball_speed.y = - ball_speed.y;
-				ball.y = SCREEN_HEIGHT - ball.height;
-			}
-			else if (ball.y <= 0) {
-				ball_speed.y = - ball_speed.y;
-				ball.y = 0;
-			}
-			ball.x += ball_speed.x;
-			ball.y += ball_speed.y;
 			blink_counter = 0;
 		}
 		else 
@@ -84,23 +84,27 @@ int main()
 
 			if (pause && (blink_counter / 30) % 2) 
 				DrawText("paused", SCREEN_WIDTH / 2.0 + 20, SCREEN_HEIGHT / 2.0 + 200, 80, WHITE);
+
 			if (paddle1_score >= 10) {
 				DrawText(TextFormat("%d", paddle1_score), SCREEN_WIDTH / 2 - 95, SCREEN_HEIGHT / 2 - 30, 80, GREEN);
 				DrawText(TextFormat("%d", paddle2_score), SCREEN_WIDTH / 2 + 60, SCREEN_HEIGHT / 2 - 30, 80, GRAY);
+				DrawText("press R to restart", SCREEN_WIDTH / 2 + 20, SCREEN_HEIGHT / 2 + 150, 40, PURPLE);
 			}
 			else if (paddle2_score >= 10) {
 				DrawText(TextFormat("%d", paddle1_score), SCREEN_WIDTH / 2 - 95, SCREEN_HEIGHT / 2 - 30, 80, GRAY);
 				DrawText(TextFormat("%d", paddle2_score), SCREEN_WIDTH / 2 + 60, SCREEN_HEIGHT / 2 - 30, 80, GREEN);
+				DrawText("press 'r' to restart", SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2, 80, GRAY);
 			} 
 			else {
 				DrawText(TextFormat("%d", paddle1_score), SCREEN_WIDTH / 2 - 95, SCREEN_HEIGHT / 2 - 30, 80, GRAY);
 				DrawText(TextFormat("%d", paddle2_score), SCREEN_WIDTH / 2 + 60, SCREEN_HEIGHT / 2 - 30, 80, GRAY);
+				DrawRectangleRec(ball, WHITE);
 			}
 			DrawRectangleRec(paddle1, WHITE);
 			DrawRectangleRec(paddle2, WHITE);
-			DrawRectangleRec(ball, WHITE);
 		EndDrawing();
 	}
+
 
 	return 0;
 }
