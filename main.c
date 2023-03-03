@@ -1,114 +1,136 @@
 #include <stdio.h>
 #include <raylib.h>
-#include <time.h>
-#include <stdlib.h>
 #include <stdbool.h>
-#include <ctype.h>
 
 #define SCREEN_WIDTH  1200.00
 #define SCREEN_HEIGHT  900.00
 
 void control_paddle();
-bool collided(Vector2 paddle);
+void accelarate();
+void reset_ball_speed();
+void reset_score();
 
-Vector2 paddle1 = {10, 10};
-Vector2 paddle2 = {SCREEN_WIDTH - 30, SCREEN_HEIGHT - 70};
-Vector2 paddle_size  = {20, 80};
-const int paddle_speed = 12;
+Rectangle paddle1 = {10.0, 10.0, 20.0, 80.0};
+Rectangle paddle2 = {SCREEN_WIDTH - 30.0, SCREEN_HEIGHT - 70.0, 20.0, 80.0};
 
-Vector2 ball_size = {20, 20};
-Vector2 ball = {(float) SCREEN_WIDTH / 2, (float) SCREEN_HEIGHT / 2};
+Rectangle ball = {SCREEN_WIDTH / 2.0, SCREEN_HEIGHT / 2.0, 15.0, 15.0};
 Vector2 ball_speed = {10, 10};
 
-int player1_score = 0;
-int player2_score = 0;
-const int font_size = 40;
-const int font_size_title = 60;
+const float paddle_speed = 12;
+const float accelaration_rate = 0.1;
 
-int pause = 0;
-int frame_counter = 0;
+int paddle1_score = 0;
+int paddle2_score = 0;
+int blink_counter = 0;
 
-int main()
+bool pause = 0;
+
+int main() 
 {
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Pong");
-    SetTargetFPS(60);
-    
-    while(!WindowShouldClose()) {
-		if (IsKeyPressed(KEY_SPACE)) 
-			pause = !pause;
+	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "refactored pong");
+	SetTargetFPS(60);
+
+	while (!WindowShouldClose()) {
+		if (IsKeyPressed(KEY_SPACE)) pause = !pause;		
+		if (IsKeyDown(KEY_R)) reset_score();
 
 		if (!pause) {
 			control_paddle();
-			
-			if (collided(paddle1)) {
+			if (CheckCollisionRecs(paddle1, ball)) {
+				accelarate();
 				ball_speed.x = - ball_speed.x;
 				ball.x += ball_speed.x;
 			}
-			if (collided(paddle2)) {
+			if (CheckCollisionRecs(paddle2, ball)) {
+				accelarate();
 				ball_speed.x = - ball_speed.x;
 				ball.x += ball_speed.x;
 			}
 
-			if (ball.x + ball_size.x >= SCREEN_WIDTH) {
-				player1_score += 1;
-				ball.x = (float) SCREEN_WIDTH / 2;
-				ball.y = (float) SCREEN_HEIGHT / 2;
-			} 
-			else if (ball.x <= 0) {
-				player2_score += 1;
-				ball.x = (float) SCREEN_WIDTH / 2;
-				ball.y = (float) SCREEN_HEIGHT / 2;
+			if (ball.x + ball.width >= SCREEN_WIDTH) {
+				reset_ball_speed();
+				ball.x = SCREEN_WIDTH  / 2;
+				ball.y = SCREEN_HEIGHT / 2;
+				paddle1_score++;
 			}
-			else if (ball.y + ball_size.y >= SCREEN_HEIGHT) {
+			else if (ball.x <= 0) {
+				reset_ball_speed();
 				ball_speed.y = - ball_speed.y;
-				ball.y = SCREEN_HEIGHT - ball_size.y;
-			} 
+				ball_speed.x = - ball_speed.x;
+				ball.x = SCREEN_WIDTH  / 2;
+				ball.y = SCREEN_HEIGHT / 2;
+				paddle2_score++;
+			}
+
+			if (ball.y + ball.height >= SCREEN_HEIGHT) {
+				ball_speed.y = - ball_speed.y;
+				ball.y = SCREEN_HEIGHT - ball.height;
+			}
 			else if (ball.y <= 0) {
 				ball_speed.y = - ball_speed.y;
 				ball.y = 0;
 			}
 			ball.x += ball_speed.x;
 			ball.y += ball_speed.y;
-			frame_counter = 0;
+			blink_counter = 0;
 		}
 		else 
-			frame_counter++;
+			blink_counter++;
 
 		BeginDrawing();
 			ClearBackground(BLACK);
-			DrawText("PONG", SCREEN_WIDTH / 2 - 85, SCREEN_HEIGHT / 2 - 100, font_size_title, WHITE);
-			DrawText(TextFormat("%d", player1_score), SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 40, font_size, WHITE);
-			DrawText(TextFormat("%d", player2_score), SCREEN_WIDTH / 2 +  75, SCREEN_HEIGHT / 2 - 40, font_size, WHITE);
-			DrawLine(SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2, SCREEN_HEIGHT, GRAY);
-			DrawRectangleV(paddle1, paddle_size, WHITE);
-			DrawRectangleV(paddle2, paddle_size, WHITE);
-			DrawRectangleV(ball, ball_size, WHITE);
-			if (pause && (frame_counter / 30) % 2) {
-				DrawText("paused", SCREEN_WIDTH / 2 - 171, SCREEN_HEIGHT / 2, 100, WHITE);
-			}
-		EndDrawing();
-    }
+			for (int i = 0; i < SCREEN_HEIGHT; i += 3)
+				if (i % 2) DrawPixel(SCREEN_WIDTH / 2, i, GRAY);
 
-    return 0;
+			if (pause && (blink_counter / 30) % 2) 
+				DrawText("paused", SCREEN_WIDTH / 2.0 + 20, SCREEN_HEIGHT / 2.0 + 200, 80, WHITE);
+			if (paddle1_score >= 10) {
+				DrawText(TextFormat("%d", paddle1_score), SCREEN_WIDTH / 2 - 95, SCREEN_HEIGHT / 2 - 30, 80, GREEN);
+				DrawText(TextFormat("%d", paddle2_score), SCREEN_WIDTH / 2 + 60, SCREEN_HEIGHT / 2 - 30, 80, GRAY);
+			}
+			else if (paddle2_score >= 10) {
+				DrawText(TextFormat("%d", paddle1_score), SCREEN_WIDTH / 2 - 95, SCREEN_HEIGHT / 2 - 30, 80, GRAY);
+				DrawText(TextFormat("%d", paddle2_score), SCREEN_WIDTH / 2 + 60, SCREEN_HEIGHT / 2 - 30, 80, GREEN);
+			} 
+			else {
+				DrawText(TextFormat("%d", paddle1_score), SCREEN_WIDTH / 2 - 95, SCREEN_HEIGHT / 2 - 30, 80, GRAY);
+				DrawText(TextFormat("%d", paddle2_score), SCREEN_WIDTH / 2 + 60, SCREEN_HEIGHT / 2 - 30, 80, GRAY);
+			}
+			DrawRectangleRec(paddle1, WHITE);
+			DrawRectangleRec(paddle2, WHITE);
+			DrawRectangleRec(ball, WHITE);
+		EndDrawing();
+	}
+
+	return 0;
 }
 
 void control_paddle() {
-    if (IsKeyDown(KEY_S) && (paddle1.y + paddle_size.y) <= SCREEN_HEIGHT) 
-        paddle1.y += paddle_speed;
-    if (IsKeyDown(KEY_W) && paddle1.y >= 0) 
-        paddle1.y -= paddle_speed;
-    if (IsKeyDown(KEY_DOWN) && (paddle2.y + paddle_size.y) <= SCREEN_HEIGHT)
-        paddle2.y += paddle_speed;
-    if (IsKeyDown(KEY_UP) && paddle2.y >= 0) 
-        paddle2.y -= paddle_speed;    
+	if (IsKeyDown(KEY_S) && (paddle1.y + paddle1.height) <= SCREEN_HEIGHT)
+		paddle1.y += paddle_speed;
+	else if (IsKeyDown(KEY_W) && paddle1.y >= 0)
+		paddle1.y -= paddle_speed;
+	
+	if (IsKeyDown(KEY_DOWN) && (paddle2.y + paddle2.height) <= SCREEN_HEIGHT)
+		paddle2.y += paddle_speed;
+	else if (IsKeyDown(KEY_UP) && (paddle2.y >= 0)) 
+		paddle2.y -= paddle_speed;
 }
 
-bool collided(Vector2 paddle) {
-	if (paddle.x < (ball.x + ball_size.x)   && 
-		(paddle.x + paddle_size.x) > ball.x &&
-		paddle.y < (ball.y + ball_size.y)   &&
-		(paddle.y + paddle_size.y) > ball.y ) 
-		return true;
+void accelarate() {
+	if (ball_speed.x < 0) ball_speed.x -= accelaration_rate;
+	else if (ball_speed.x > 0) ball_speed.x += accelaration_rate;
 
-	return false;
+	if (ball_speed.y < 0) ball_speed.y -= accelaration_rate;
+	else if (ball_speed.y > 0) ball_speed.y += accelaration_rate;
+}
+
+void reset_ball_speed() {
+	ball_speed.x = 10;
+	ball_speed.y = 10;
+}
+
+void reset_score() {
+	paddle1_score = 0;
+	paddle2_score = 0;
 }
