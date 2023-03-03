@@ -39,11 +39,17 @@ int main()
 	Sound paddle_hit = LoadSound("assets/paddle_hit.wav");
 	Sound wall_hit = LoadSound("assets/wall_hit.wav");
 	Sound score = LoadSound("assets/score.wav");
+	Sound startup_track = LoadSound("assets/welcome.wav");
+
+	PlaySound(startup_track);
 
 	SetTargetFPS(60);
 
 	while (!WindowShouldClose()) {
-		if (IsMouseButtonPressed(0)) start = 1;
+		if (IsMouseButtonPressed(0)) {
+			start = 1;
+			StopSound(startup_track);
+		}
 		if (start) {
 			if (IsKeyPressed(KEY_SPACE)) pause = !pause;		
 			if (IsKeyDown(KEY_R)) reset_score();
