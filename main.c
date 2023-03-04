@@ -9,7 +9,7 @@
 void control_paddle();
 void accelarate();
 void reset_ball_speed();
-void reset_score();
+void reset_game_state();
 void startup();
 
 Rectangle paddle1 = {10.0, 10.0, 20.0, 90.0};
@@ -27,6 +27,7 @@ const float accelaration_rate = 0.2;
 int paddle1_score = 0;
 int paddle2_score = 0;
 int blink_counter = 0;
+int tmp = 0;
 
 bool pause = 0;
 bool start = 0;
@@ -40,6 +41,7 @@ int main()
 	Sound wall_hit = LoadSound("assets/wall_hit.wav");
 	Sound score = LoadSound("assets/score.wav");
 	Sound startup_track = LoadSound("assets/welcome.wav");
+	Sound win = LoadSound("assets/win.wav");
 
 	PlaySound(startup_track);
 
@@ -52,10 +54,22 @@ int main()
 		}
 		if (start) {
 			if (IsKeyPressed(KEY_SPACE)) pause = !pause;		
-			if (IsKeyDown(KEY_R)) reset_score();
+			if (IsKeyDown(KEY_R)) {
+				reset_game_state();
+				reset_ball_speed();
+			}
+		}
+
+		if (paddle1_score == 10 || paddle2_score == 10) {
+			if (tmp >= 10000)
+				tmp = 100;
+			tmp++;
 		}
 
 		if (!pause && start) {
+			if (tmp == 1)
+				PlaySound(win);
+
 			control_paddle();
 			if (CheckCollisionRecs(paddle1, ball)) {
 				PlaySound(paddle_hit);
@@ -147,7 +161,6 @@ int main()
 		EndDrawing();
 	}
 
-
 	return 0;
 }
 
@@ -176,7 +189,9 @@ void reset_ball_speed() {
 	ball_speed.y = 10;
 }
 
-void reset_score() {
+void reset_game_state() {
+	ball.x = SCREEN_WIDTH / 2.0 - 400.0;
+	ball.y = SCREEN_HEIGHT / 2.0;
 	paddle1_score = 0;
 	paddle2_score = 0;
 }
